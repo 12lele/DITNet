@@ -36,8 +36,9 @@ from utils.torch_utils import ModelEMA, select_device, intersect_dicts, torch_di
 from utils.wandb_logging.wandb_utils import WandbLogger, check_wandb_resume
 
 from utils.datasets import RandomSampler
-import global_var
+from utils import global_var
 
+import datetime
 
 def train_rgb_ir(hyp, opt, device, tb_writer=None):
     os.environ["WANDB_MODE"] = "offline"
@@ -155,7 +156,7 @@ def train_rgb_ir(hyp, opt, device, tb_writer=None):
     ema = ModelEMA(model) if rank in [-1, 0] else None
 
     # Resume
-    start_epoch, best_fitness = 0, 0.0
+    start_epoch, best_fitness = 0, 20.0
     if pretrained:
         # Optimizer
         if ckpt['optimizer'] is not None:
@@ -311,7 +312,7 @@ def train_rgb_ir(hyp, opt, device, tb_writer=None):
                     image = unloader(image)
                     image.save('example_%s_%s_%s_ir.jpg'%(str(epoch), str(i), str(num)))
 
-            # Warmup   逐步增加学习率和动量
+            # Warmup
             if ni <= nw:
                 xi = [0, nw]  # x interp
                 # model.gr = np.interp(ni, xi, [0.0, 1.0])  # iou loss ratio (obj_loss = 1.0 or iou)
@@ -322,7 +323,7 @@ def train_rgb_ir(hyp, opt, device, tb_writer=None):
                     if 'momentum' in x:
                         x['momentum'] = np.interp(ni, xi, [hyp['warmup_momentum'], hyp['momentum']])
 
-            # Multi-scale  如果启用了多尺度训练，随机调整图像大小
+            # Multi-scale
             if opt.multi_scale:
                 sz = random.randrange(imgsz * 0.5, imgsz * 1.5 + gs) // gs * gs  # size
                 sf = sz / max(imgs.shape[2:])  # scale factor
@@ -341,6 +342,8 @@ def train_rgb_ir(hyp, opt, device, tb_writer=None):
                     loss *= 4.
 
             # Backward
+
+            torch.use_deterministic_algorithms(False)
             scaler.scale(loss).backward()
 
             # Optimize
@@ -365,9 +368,9 @@ def train_rgb_ir(hyp, opt, device, tb_writer=None):
                     Thread(target=plot_images, args=(imgs_ir, targets, paths, f2), daemon=True).start()
 
             # end batch ------------------------------------------------------------------------------------------------
+        # end epoch ----------------------------------------------------------------------------------------------------
 
-
-        # Scheduler   学习率进行存储和更新
+        # Scheduler
         lr = [x['lr'] for x in optimizer.param_groups]  # for tensorboard
         scheduler.step()
 
@@ -400,24 +403,31 @@ def train_rgb_ir(hyp, opt, device, tb_writer=None):
                     'TP', 'FP', 'FN', 'F1', 'metrics/precision', 'metrics/recall', 'metrics/mAP_0.5', 'metrics/mAP_0.5:0.95',  # metrics
                     'val/box_loss', 'val/obj_loss', 'val/cls_loss', 'val/rank_loss',  # val loss
                     'x/lr0', 'x/lr1', 'x/lr2',  # learning rate
-                    'MR_all', 'MR_day', 'MR_night', 'MR_near', 'MR_medium', 'MR_far', 'MR_none', 'MR_partial', 'MR_heavy', 'Recall_all'  # MR
+                    'MR_all', 'MR_day', 'MR_night', 'MR_near', 'MR_medium', 'MR_far', 'MR_none', 'MR_partial', 'MR_heavy', 'Recall_all',  # MR
+                    'timestamp' # Add timestamp key
                     ]
-            vals = list(mloss) + list(results) + lr + MRresult
+
+            # Get the current time and format it as a string
+            current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+
+            vals = list(mloss) + list(results) + lr + MRresult + [current_time]
             dicts = {k: v for k, v in zip(keys, vals)}  # dict
             file = save_dir / 'results.csv'
             n = len(dicts) + 1  # number of cols
-            s = '' if file.exists() else (('%s,' * n % tuple(['epoch'] + keys)).rstrip(',') + '\n')  # add header
-            with open(file, 'a') as f:
-                f.write(s + ('%g,' * n % tuple([epoch] + vals)).rstrip(',') + '\n')
+            s = '' if file.exists() else (('{}' + ',{}' * (n - 1)).format('epoch', *keys) + '\n')  # add header
 
-            # Update best
-            fi = fitness(np.array(results).reshape(1, -1))  # weighted combination of [P, R, mAP@.5, mAP@.5-.95]
-            if fi > best_fitness:
-                best_fitness = fi
-            #wandb_logger.end_epoch(best_result=best_fitness == fi)
-            # fi = MRresult[0]
-            # if fi < best_fitness:
+            with open(file, 'a') as f:
+                f.write(s + (('{}' + ',{}' * (n - 1)).format(epoch, *vals) + '\n'))
+
+            # Update best mAP
+            # fi = fitness(np.array(results).reshape(1, -1))  # weighted combination of [P, R, mAP@.5, mAP@.5-.95]
+            # if fi > best_fitness:
             #     best_fitness = fi
+            # wandb_logger.end_epoch(best_result=best_fitness == fi)
+            fi = MRresult[0]
+            if fi < best_fitness:
+                best_fitness = fi
 
             # Save model
             if (not opt.nosave) or (final_epoch and not opt.evolve):  # if save
@@ -474,9 +484,9 @@ def train_rgb_ir(hyp, opt, device, tb_writer=None):
 
         # Strip optimizers
         final = best if best.exists() else last  # final model
-        for f in last, best:
-            if f.exists():
-                strip_optimizer(f)  # strip optimizers
+        # for f in last, best:
+        #     if f.exists():
+        #         strip_optimizer(f)  # strip optimizers
         if opt.bucket:
             os.system(f'gsutil cp {final} gs://{opt.bucket}/weights')  # upload
         if wandb_logger.wandb and not opt.evolve:  # Log the stripped model
@@ -493,11 +503,11 @@ def train_rgb_ir(hyp, opt, device, tb_writer=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', type=str, default='yolov5l.pt', help='initial weights path')
-    parser.add_argument('--cfg', type=str, default='./models/transformer/yolov5l_Transfusion_FLIR.yaml', help='model.yaml path')
-    parser.add_argument('--data', type=str, default='./data/multispectral/FLIR-align-3class.yaml', help='data.yaml path')
+    parser.add_argument('--cfg', type=str, default='./models/transformer/yolov5l_Transfusion_kaist.yaml', help='model.yaml path')
+    parser.add_argument('--data', type=str, default='./data/multispectral/kaist.yaml', help='data.yaml path')
     parser.add_argument('--hyp', type=str, default='data/hyp.scratch.yaml', help='hyperparameters path')
-    parser.add_argument('--epochs', type=int, default=60)
-    parser.add_argument('--batch-size', type=int, default=8, help='total batch size for all GPUs')
+    parser.add_argument('--epochs', type=int, default=50)
+    parser.add_argument('--batch-size', type=int, default=10, help='total batch size for all GPUs')
     parser.add_argument('--img-size', nargs='+', type=int, default=[640, 640], help='[train, test] image sizes')
     parser.add_argument('--rect', action='store_true', help='rectangular training')
     parser.add_argument('--resume', nargs='?', const=True, default=False, help='resume most recent training')
@@ -508,7 +518,7 @@ if __name__ == '__main__':
     parser.add_argument('--bucket', type=str, default='', help='gsutil bucket')
     parser.add_argument('--cache-images', action='store_true', help='cache images for faster training')
     parser.add_argument('--image-weights', action='store_true', help='use weighted image selection for training')
-    parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
+    parser.add_argument('--device', default='0', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--multi-scale', action='store_true', help='vary img-size +/- 50%%')
     parser.add_argument('--single-cls', action='store_true', help='train multi-class data as single-class')
     parser.add_argument('--adam', action='store_true', help='use torch.optim.Adam() optimizer')
