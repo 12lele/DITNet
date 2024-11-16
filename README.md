@@ -1,5 +1,5 @@
 # DITNet
-This code and data will be open after the paper is accepted
+Refined Feature Alignment and Dynamic Interaction Transformer for Multispectral Pedestrian Detection
 
 
 # Kaist Dataset:
