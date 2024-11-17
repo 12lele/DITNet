@@ -10,5 +10,7 @@ Link:https://pan.baidu.com/s/14BKgDguo5Z9UGBzPT9P73w?pwd=aipo code：aipo
 # Kaist Weight:
 Link: https://pan.baidu.com/s/1SzHaj8Xg-LRyciRJsnrUHQ?pwd=rvwq code: rvwq
 
+# FLIR Weight:
+Link：https://pan.baidu.com/s/1Hnl6aYkoVnOsLCLEUBewew?pwd=l442 code：l442
 
 
