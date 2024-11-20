@@ -12,14 +12,14 @@ cd DITNet
 ```
 **Step 2: Environment Setup:**
 
-***Create a virtual environment using conda ***
+Create a virtual environment using conda 
 
 ```bash
 conda create -n DITNet python=3.8 -y
 conda activate DITNet
 ```
 
-***Install dependencies.Pay attention to whether your CUDA and TORCH match ***
+Install dependencies.Pay attention to whether your CUDA and TORCH match 
 
 ```bash
 pip install torch==1.13.0+cu117 torchvision==0.14.0+cu117 torchaudio==0.13.0 --extra-index-url https://download.pytorch.org/whl/cu117
@@ -27,11 +27,17 @@ pip install -r requirements.txt
 ```
 
 **Step 3: Download dataset:**
-*** Kaist Dataset:***
-Link：https://pan.baidu.com/s/1bECsaWaeWd_4DJIhO8S2Og?pwd=5lz0 code：5lz0
-*** FLIR Dataset:***
-Link:https://pan.baidu.com/s/14BKgDguo5Z9UGBzPT9P73w?pwd=aipo code：aipo
 
+Kaist Dataset:
+ ```bash
+Link：https://pan.baidu.com/s/1bECsaWaeWd_4DJIhO8S2Og?pwd=5lz0 code：5lz0
+```
+
+FLIR Dataset:
+
+ ```bash
+Link:https://pan.baidu.com/s/14BKgDguo5Z9UGBzPT9P73w?pwd=aipo code：aipo
+```
 
 **Step 4: Download weight:**
 *** Kaist Weight:***
