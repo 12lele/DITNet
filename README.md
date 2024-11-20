@@ -1,7 +1,7 @@
 # DITNet
 Refined Feature Alignment and Dynamic Interaction Transformer for Multispectral Pedestrian Detection
 
-# Getting Started
+## **Getting Started**
 **Step 1: Clone the DITNet repository:**
 
 To get started, first clone the DITNet repository and navigate to the project directory:
