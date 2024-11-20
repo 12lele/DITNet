@@ -1,6 +1,12 @@
 # DITNet
 Refined Feature Alignment and Dynamic Interaction Transformer for Multispectral Pedestrian Detection
 
+## **Overview**
+<p align="center">
+  <img src="README.assets\image-20240312011746031.png" alt="overview" width="90%">
+</p>
+
+
 ## **Getting Started**
 ### Step 1: Clone the DITNet repository:
 
@@ -55,10 +61,13 @@ Link：https://pan.baidu.com/s/1Hnl6aYkoVnOsLCLEUBewew?pwd=l442 code：l442
 
 ### Step 5: Run the test file:
 ***Kaist:***
+ ```bash
 python test_kaist.py
+ ```
 ***FLIR:***
+ ```bash
 python test_FLIR.py
-
+ ```
 ### If you want to train your own network to obtain your own weights, you can use the following command
 
 
