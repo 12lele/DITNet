@@ -13,12 +13,18 @@ cd DITNet
 **Step 2: Environment Setup:**
 
 ***Create a virtual environment using conda ***
+
+```bash
 conda create -n DITNet python=3.8 -y
 conda activate DITNet
+```
 
 ***Install dependencies.Pay attention to whether your CUDA and TORCH match ***
+
+```bash
 pip install torch==1.13.0+cu117 torchvision==0.14.0+cu117 torchaudio==0.13.0 --extra-index-url https://download.pytorch.org/whl/cu117
 pip install -r requirements.txt
+```
 
 **Step 3: Download dataset:**
 *** Kaist Dataset:***
