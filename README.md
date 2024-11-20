@@ -3,7 +3,7 @@ Refined Feature Alignment and Dynamic Interaction Transformer for Multispectral 
 
 ## **Overview**
 <p align="center">
-  <img src="https://github.com/12lele/DITNet/blob/main/data/Overview.png" alt="overview" width="90%">
+  <img src="https://github.com/12lele/DITNet/blob/main/data/overview.png" alt="overview" width="90%">
 </p>
 
 
