@@ -74,3 +74,17 @@ python test_FLIR.py
  ```bash
 CUDA_VISIBLE_DEVICES=0 python train_kaist.py 
 ```
+
+## Result
+***KAIST:***
+|  ALL  | Day | Night  | 
+| :---  |  :---:   |   :---:    | 
+| 6.35    | 6.86  |  5.93   |
+
+
+***FLIR:***
+|  mAP50  | person AP50 | car AP50  | blicycle AP50 |
+| :---  |  :---:   |   :---:    | :---:|
+| 83.1    | 85.2  |  90.10   | 73.80 |
+
+
