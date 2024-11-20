@@ -1,6 +1,6 @@
 # DITNet
 Refined Feature Alignment and Dynamic Interaction Transformer for Multispectral Pedestrian Detection
-This article proposes a dynamic interactive Transformer to address the difficulty of fully fusing multispectral images. In response to information mismatch and feature misalignment, a refined feature alignment module is proposed
+This paper proposes a dynamic interactive Transformer to address the difficulty in fully fusing multispectral images, and proposes a refined feature alignment module to address information mismatch and feature misalignment.
 
 ## **Overview**
 <p align="center">
