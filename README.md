@@ -40,10 +40,16 @@ Link:https://pan.baidu.com/s/14BKgDguo5Z9UGBzPT9P73w?pwd=aipo code：aipo
 ```
 
 **Step 4: Download weight:**
-*** Kaist Weight:***
+
+Kaist Weight:
+ ```bash
 Link: https://pan.baidu.com/s/1SzHaj8Xg-LRyciRJsnrUHQ?pwd=rvwq code: rvwq
-*** FLIR Weight:***
+```
+### FLIR Weight:###
+ ```bash
 Link：https://pan.baidu.com/s/1Hnl6aYkoVnOsLCLEUBewew?pwd=l442 code：l442
+```
+
 
 **Step 5: Run the test file:**
 *** Kaist:***
